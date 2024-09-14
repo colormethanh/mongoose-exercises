@@ -9,8 +9,8 @@ const app = express();
 
 const request = require('request');
 const mongoose = require('mongoose');
-const Book = require('./models/BookModel');
-const Person = require('./models/PersonModel');
+const {Book} = require('./models/BookModel');
+const {Person} = require('./models/PersonModel');
 
 mongoose.connect('mongodb://localhost/mongoose-exercises');
 
@@ -60,7 +60,8 @@ isbns.forEach((i) => {
   for subsequent runs, re-comment it so that it runs only once!
   that said, there is a fail-safe to avoid duplicates below
   =======================================================*/
-	loadFromAPI(apiURL);
+	
+  // loadFromAPI(apiURL);
 });
 
 /*=====================================================
@@ -147,19 +148,128 @@ and your server is running do the following:
 /*Books
 ----------------------*/
 //1. Find books with fewer than 500 but more than 200 pages
+// Book.find({pages: {
+//   $gt: 200,
+//   $lt: 500
+// }}).exec().then((err, books) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(`Books with page ct b/w 200 & 500: ${books}`);
+//   };
+// });
 
 //2. Find books whose rating is less than 5, and sort by the author's name
+// Book.find({rating: {
+//   $lt: 5
+// }}).sort({
+//   author: 1
+// }).exec().then((err, books) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(`Books with rating less than 5: ${books}`);
+//   };
+// })
 
 //3. Find all the Fiction books, skip the first 2, and display only 3 of them
+// Book.find({
+//   genres: {$in: ["Fiction"]}
+// }).skip(2)
+//   .limit(3)
+//   .exec()
+//   .then((err, books) => {
+//     if (err) {
+//       console.error(err);
+//     } else {
+//       console.log(`fiction books: ${books}`);
+//     };
+//   });
+
+
 
 /*People
 ----------------------*/
 //1. Find all the people who are tall (>180) AND rich (>30000)
+// Person.find({
+//   height: {$gte: 180},
+//   salary: {$gte: 30000}
+// }).then((err, people) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(people);
+//   }
+// });
 
 //2. Find all the people who are tall (>180) OR rich (>30000)
+// Person.find({
+//   $or : [
+//     {height: {$gte: 180}},
+//     {salary: {$gte: 30000}}
+//   ]
+// }).then((err, people) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(people);
+//   }
+// })
 
 //3. Find all the people who have grey hair or eyes, and who's weight (<70)
-
+// Person.find({
+//   $or: [
+//     {eyes: "grey"},
+//     {hair: "grey"}
+//   ], 
+//   $and: [{
+//     weight: {$lte: 70}
+//   }]
+// }).then((err, people) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(people);
+//   }
+// })
 //4. Find people who have at least 1 kid with grey hair
 
+// 
+/// My solution
+//
+
+// Person.find({
+//   "kids.hair": "grey",
+// }).then((err, people) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     people.forEach((person) => {
+// 			console.log('Person has kids:', person.kids);
+// 		});
+//   }
+// });
+
+// Person.find({ 'kids.hair': 'grey' })
+// 	.then((people) => {
+// 		people.forEach((person) => {
+// 			console.log('Person has kids:', person.kids);
+// 		});
+// 	})
+// 	.catch((err) => {
+// 		console.error(err);
+// 	});
+
 //5. Find all the people who have at least one kid who's weight is >100 and themselves' weight is >100
+Person.find({
+  $and: [{ 'kids.weight': {$gte: 100} }, {weight: {$gte: 100}}]
+  })
+	.then((people) => {
+		people.forEach((person) => {
+			// console.log('Person has kids:', person.kids);
+      console.log('Person is', person);
+		});
+	})
+	.catch((err) => {
+		console.error(err);
+	});
